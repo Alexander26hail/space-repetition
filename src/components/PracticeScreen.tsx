@@ -33,9 +33,8 @@ const PracticeScreen: React.FC<PracticeScreenProps> = ({
     const [pastParticiple, setPastParticiple] = useState('');
     const [translation, setTranslation] = useState('');
     const [pairs, setPairs] = useState<MatchingPair[]>([]);
-    const [shuffledSpanish, setShuffledSpanish] = useState<string[]>([]);
-    const [selectedEnglish, setSelectedEnglish] = useState<string | null>(null);
-    const [selectedSpanish, setSelectedSpanish] = useState<string | null>(null);
+    const [shuffledSpanish, setShuffledSpanish] = useState<{ text: string; originalIndex: number }[]>([]);
+    const [selectedEnglish, setSelectedEnglish] = useState<string | null>(null);const [selectedSpanish, setSelectedSpanish] = useState<string | null>(null);
     const [matchedPairs, setMatchedPairs] = useState<MatchingPair[]>([]);
     const [matchFeedback, setMatchFeedback] = useState<{ msg: string; ok: boolean } | null>(null);
     const [checked, setChecked] = useState(false);
