@@ -12,7 +12,7 @@ export default function HomePage() {
     const [screen, setScreen] = useState<Screen>('start');
     const [allVerbs, setAllVerbs] = useState<Verb[]>([]);
     const [dailyVerbs, setDailyVerbs] = useState<Verb[]>([]);
-    const [attemptsPerVerb, setAttemptsPerVerb] = useState(SESSION_CONFIG.ATTEMPTS_PER_VERB_DEFAULT);
+    const [attemptsPerVerb, setAttemptsPerVerb] = useState<number>(SESSION_CONFIG.ATTEMPTS_PER_VERB_DEFAULT);
     const [questionDeck, setQuestionDeck] = useState<Exercise[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [loading, setLoading] = useState(true);
