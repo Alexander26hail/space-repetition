@@ -1,0 +1,13 @@
+# .dockerignore
+# Excluir archivos innecesarios del contexto de Docker
+.git
+.gitignore
+README.md
+.dockerignore
+node_modules
+*.log
+.DS_Store
+Thumbs.db
+.next
+node_modules
+.env.local
