@@ -7,6 +7,7 @@ import { Verb, Screen, SessionStats, Exercise } from '@/types';
 import { getDailyVerbs, getPerformanceZone, getReinforcementAttempts } from '@/lib/verbUtils';
 import { createMixedQuestionDeck, createMixedReinforcementDeck, isSpanishTranslationCorrect } from '@/lib/exerciseUtils';
 import { SESSION_CONFIG, UI_CONFIG } from '@/lib/constants';
+import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
 
 export default function HomePage() {
     const [screen, setScreen] = useState<Screen>('start');
@@ -22,13 +23,15 @@ export default function HomePage() {
         verbsWithErrors: [],
     });
     const [showExitModal, setShowExitModal] = useState(false);
+    const { getDailyVerbsSR, recordAnswer } = useSpacedRepetition();
 
     useEffect(() => {
         fetch(process.env.NEXT_PUBLIC_API_URL!)
             .then((res) => res.json())
             .then((data: Verb[]) => {
                 setAllVerbs(data);
-                setDailyVerbs(getDailyVerbs(data));
+                const srVerbs = getDailyVerbsSR(data);
+                setDailyVerbs(srVerbs.length > 0 ? srVerbs : getDailyVerbs(data));
                 setLoading(false);
             })
             .catch((err) => {
@@ -39,6 +42,7 @@ export default function HomePage() {
 
     const currentExercise = questionDeck[currentIndex];
     const currentVerb = currentExercise?.verb;
+    
 
     const handleCheck = (answers: {
         infinitive?: string;
@@ -57,6 +61,10 @@ export default function HomePage() {
                 (answers.pastParticiple?.trim().toLowerCase() ?? '') === currentVerb.pastParticiple.toLowerCase();
         } else if (currentExercise.type === 'translate_to_spanish') {
             isCorrect = isSpanishTranslationCorrect(answers.translation ?? '', currentVerb.spanish);
+        }
+
+        if (currentExercise.type !== 'match_translation') {
+            recordAnswer(currentVerb.infinitive, isCorrect);
         }
 
         setStats((prev) => ({

@@ -1,6 +1,8 @@
 'use client';
 import React from 'react';
 import { Verb } from '@/types';
+import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
+
 
 interface StartScreenProps {
     dailyVerbs: Verb[];
@@ -29,6 +31,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
     onIncreaseAttempts,
     onDecreaseAttempts,
 }) => {
+    const { getVerbProgress } = useSpacedRepetition();
     const totalQuestions = dailyVerbs.length * attemptsPerVerb;
     const progressWidth = `${((attemptsPerVerb - SESSION_MIN) / (SESSION_MAX - SESSION_MIN)) * 100}%`;
     const difficulty = getDifficultyLabel(attemptsPerVerb);
@@ -67,8 +70,14 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
             {/* Lista de verbos — tarjetas */}
             <ul className="space-y-2 mb-6">
-                {dailyVerbs.map((verb, index) => (
-                    <li
+
+                {dailyVerbs.map((verb, index) => {
+                    const progress = getVerbProgress(verb.infinitive);
+                    const isNew      = progress.repetitions === 0;
+                    const isMastered = progress.interval >= 21;
+
+                    return (
+                       <li
                         key={verb.infinitive}
                         className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100 hover:border-indigo-200 hover:bg-indigo-50 transition-all"
                     >
@@ -95,7 +104,10 @@ const StartScreen: React.FC<StartScreenProps> = ({
                             {verb.spanish}
                         </span>
                     </li>
-                ))}
+                    );
+                })}
+
+                
             </ul>
 
             {/* Control de intentos */}
