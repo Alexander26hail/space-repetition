@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+.card-shadow {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+.input-field {
+  transition: all 0.3s ease-in-out;
+}
+
+.correct {
+  border-color: #22c55e;
+  background-color: #f0fdf4;
+}
+
+.incorrect {
+  border-color: #ef4444;
+  background-color: #fef2f2;
+}
+
+.correction-mode {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.btn-primary {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.2);
+}
+
+.btn-secondary {
+  transition: all 0.2s ease;
+  background-color: #e2e8f0;
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+}
+
+/* Matching exercise */
+.matching-word {
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.5rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  font-weight: 500;
+}
+
+.matching-word:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-1px);
+}
+
+.matching-word.selected {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.matching-word.matched {
+  border-color: #22c55e;
+  background: #f0fdf4;
+  color: #15803d;
+  cursor: default;
+  transform: none;
+}
+
+.matching-word.matched:hover {
+  transform: none;
+}
+
+@keyframes matchSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#verb-image-container {
+  height: 250px;
+  background-color: #f1f5f9;
+}
+
+#verb-image {
+  max-height: 100%;
+  width: auto;
+  object-fit: contain;
+  animation: fadeIn 0.5s ease-in-out;
+}
