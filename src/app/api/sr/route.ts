@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { SRTursoRepository } from '@/lib/sr/SRTursoRepository';
+import { SRTursoRepository } from '@/lib/SRTursoRepository'; // ← corregir path
 import { SRService } from '@/lib/sr/SRService';
 import { SM2Algorithm } from '@/lib/sr/SM2Algorithm';
 import { initSchema } from '@/lib/db/schema';

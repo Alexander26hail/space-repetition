@@ -1,5 +1,5 @@
 import { getTursoClient } from '@/lib/db/client';
-import { ISRRepository, VerbProgress } from './types';
+import { ISRRepository, VerbProgress } from './types'; 
 
 export class SRTursoRepository implements ISRRepository {
     constructor(private readonly userId: string) {}
