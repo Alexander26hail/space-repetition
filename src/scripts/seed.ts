@@ -24,6 +24,23 @@ async function seed() {
         )
     `);
 
+      await client.execute(`
+        CREATE TABLE IF NOT EXISTS verb_progress (
+            userId          TEXT NOT NULL,
+            infinitive      TEXT NOT NULL,
+            easeFactor      REAL NOT NULL DEFAULT 2.5,
+            interval        INTEGER NOT NULL DEFAULT 0,
+            repetitions     INTEGER NOT NULL DEFAULT 0,
+            nextReview      TEXT NOT NULL,
+            lastReview      TEXT,
+            totalCorrect    INTEGER NOT NULL DEFAULT 0,
+            totalIncorrect  INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (userId, infinitive),
+            FOREIGN KEY (userId)     REFERENCES users(id),
+            FOREIGN KEY (infinitive) REFERENCES verbs(infinitive)
+        )
+    `);
+
     console.log('🌱 Insertando verbos...');
     for (const verb of verbs) {
         await client.execute({

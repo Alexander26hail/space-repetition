@@ -10,6 +10,7 @@ export interface Verb {
     prompimagen?: string;
 }
 
+
 export type Screen = 'start' | 'practice' | 'summary';
 
 export type ExerciseType = 'write_forms' | 'translate_to_spanish' | 'match_translation';
@@ -33,4 +34,19 @@ export interface MatchingPair {
 export interface PerformanceZone {
     zone: 'red' | 'yellow' | 'green';
     percentage: number;
+}
+export interface DailySession {
+    date: string;                             // YYYY-MM-DD
+    verbsStudied: string[];                   // infinitivos
+    attemptsPerVerb: Record<string, number>;  // { "break": 3 }
+    correct: number;
+    incorrect: number;
+    aiRecommendation: string;
+}
+
+export interface DailyPlan {
+    verbs: Verb[];
+    attemptsPerVerb: Record<string, number>;
+    summary: string;
+    fromCache: boolean;
 }

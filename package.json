@@ -10,9 +10,12 @@
         "seed": "tsx src/scripts/seed.ts"
     },
     "dependencies": {
+        "@auth/core": "^0.34.3",
         "@libsql/client": "^0.17.0",
         "@tailwindcss/postcss": "^4.2.1",
+        "groq-sdk": "^0.37.0",
         "next": "latest",
+        "next-auth": "^4.24.13",
         "react": "latest",
         "react-dom": "latest"
     },

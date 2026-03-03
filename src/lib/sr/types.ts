@@ -7,6 +7,9 @@ export interface VerbProgress {
     lastReview: string;
     totalCorrect: number;
     totalIncorrect: number;
+    aiNextReviewMinutes?: number;  
+    aiReason?: string;             
+    aiLastUpdated?: string; 
 }
 
 // ─── Interface del algoritmo (abierto a extensión) ────────────────────────────
@@ -35,4 +38,10 @@ export interface SRGlobalStats {
     mastered: number;    // interval >= 21 días
     learning: number;
     newVerbs: number;
+}
+export interface AIRecommendation {
+    nextReviewMinutes: number;  // 5, 10, 30, 60, 120, 1440 (1 día), etc.
+    reason: string;
+    difficulty: 'easy' | 'medium' | 'hard';
+    focusAreas: string[];
 }

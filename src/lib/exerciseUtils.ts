@@ -93,3 +93,21 @@ export function isSpanishTranslationCorrect(userInput: string, correctSpanish: s
     const mainWords = extractMainWords(correctNoAccents);
     return mainWords.some((word) => word === userNoAccents || userNoAccents.includes(word));
 }
+export function isEnglishFormCorrect(userInput: string, correctForm: string): boolean {
+    const normalized = userInput.trim().toLowerCase();
+    const correct    = correctForm.trim().toLowerCase();
+
+    if (normalized === correct) return true;
+
+    if (correct.includes('/')) {
+        const alternatives = correct.split('/').map((f) => f.trim());
+        return alternatives.some((alt) => normalized === alt);
+    }
+
+    if (correct.includes(' or ')) {
+        const alternatives = correct.split(' or ').map((f) => f.trim());
+        return alternatives.some((alt) => normalized === alt);
+    }
+
+    return false;
+}

@@ -3,6 +3,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Verb, ExerciseType } from '@/types';
 import { createMatchingPairs, shuffleArray, checkMatch } from '@/lib/matchingUtils';
 import { MatchingPair } from '@/types';
+import { isEnglishFormCorrect } from '@/lib/exerciseUtils';
+
 
 interface PracticeScreenProps {
     verb: Verb;
@@ -318,39 +320,46 @@ const PracticeScreen: React.FC<PracticeScreenProps> = ({
                 {exerciseType === 'write_forms' && (
                     <div className="space-y-4">
                         {[
-                            { label: 'Infinitive', value: infinitive, setValue: setInfinitive, correct: verb.infinitive, idx: 0, ref: firstInputRef },
-                            { label: 'Past Simple', value: pastSimple, setValue: setPastSimple, correct: verb.pastSimple, idx: 1, ref: null },
-                            { label: 'Past Participle', value: pastParticiple, setValue: setPastParticiple, correct: verb.pastParticiple, idx: 2, ref: null },
-                        ].map(({ label, value, setValue, correct, idx, ref }) => (
-                            <div key={label}>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
-                                <input
-                                    ref={ref}
-                                    type="text"
-                                    value={value}
-                                    onChange={(e) => setValue(e.target.value)}
-                                    disabled={canAdvance}
-                                    className="write-form-input w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-50"
-                                    autoComplete="off"
-                                    autoCorrect="off"
-                                    autoCapitalize="none"
-                                    onKeyDown={(e) => handleWriteFormsKeyDown(e, idx)}
-                                />
-                                {checked && (
-                                    <p className="text-sm text-green-700 mt-1 font-semibold">✓ {correct}</p>
-                                )}
-                            </div>
-                        ))}
+                            { label: 'Infinitive',      value: infinitive,      setValue: setInfinitive,      correct: verb.infinitive,      idx: 0, ref: firstInputRef },
+                            { label: 'Past Simple',     value: pastSimple,      setValue: setPastSimple,      correct: verb.pastSimple,      idx: 1, ref: null },
+                            { label: 'Past Participle', value: pastParticiple,  setValue: setPastParticiple,  correct: verb.pastParticiple,  idx: 2, ref: null },
+                        ].map(({ label, value, setValue, correct, idx, ref }) => {
+                            // ← NUEVO: evaluar cada campo individualmente
+                            const isFieldCorrect = checked
+                                ? isEnglishFormCorrect(value, correct)
+                                : null;
 
-                        {checked && (
-                            <div className={`mt-4 text-center font-medium p-3 rounded-lg ${isCorrect && !correctionMode ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                                {isCorrect && !correctionMode
-                                    ? '¡Correcto! 🎉'
-                                    : correctionMode
-                                    ? '❌ Incorrecto. Copia las formas correctas para continuar.'
-                                    : '❌ Incorrecto'}
-                            </div>
-                        )}
+                            return (
+                                <div key={label}>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">{label}</label>
+                                    <input
+                                        ref={ref}
+                                        type="text"
+                                        value={value}
+                                        onChange={(e) => setValue(e.target.value)}
+                                        disabled={canAdvance}
+                                        className={[
+                                            'write-form-input w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-50',
+                                            // ← NUEVO: colorear el input según resultado
+                                            checked && isFieldCorrect  ? 'border-green-500 bg-green-50'  : '',
+                                            checked && !isFieldCorrect ? 'border-red-500 bg-red-50'    : '',
+                                            !checked                   ? 'border-slate-300'              : '',
+                                        ].join(' ')}
+                                        autoComplete="off"
+                                        autoCorrect="off"
+                                        autoCapitalize="none"
+                                        onKeyDown={(e) => handleWriteFormsKeyDown(e, idx)}
+                                    />
+                                    {/* ← NUEVO: mostrar ✓ o ✗ por campo */}
+                                    {checked && isFieldCorrect && (
+                                        <p className="text-sm text-green-700 mt-1 font-semibold">✓ {correct}</p>
+                                    )}
+                                    {checked && !isFieldCorrect && (
+                                        <p className="text-sm text-red-600 mt-1 font-semibold">✗ Error: {correct}</p>
+                                    )}
+                                </div>
+                            );
+                        })}
 
                         <div className="mt-4 flex flex-col gap-3">
                             {!checked && (
@@ -400,16 +409,22 @@ const PracticeScreen: React.FC<PracticeScreenProps> = ({
                             onKeyDown={handleTranslationKeyDown}
                         />
 
-                        {checked && (
+                       
+                        {checked && isCorrect && !correctionMode && (
                             <p className="text-sm text-green-700 mt-2 font-semibold">
                                 ✓ Correcto: {verb.spanish}
+                            </p>
+                        )}
+                        {checked && !isCorrect && (
+                            <p className="text-sm text-red-600 mt-2 font-semibold">
+                                ✗ Error: {verb.spanish}
                             </p>
                         )}
 
                         {checked && (
                             <div className={`mt-4 text-center font-medium p-3 rounded-lg ${isCorrect && !correctionMode ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                 {isCorrect && !correctionMode
-                                    ? '¡Correcto! 🎉'
+                                    ? '¡Correcto!'
                                     : correctionMode
                                     ? '❌ Incorrecto. Escribe la traducción correcta para continuar.'
                                     : '❌ Incorrecto'}

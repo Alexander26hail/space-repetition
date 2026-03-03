@@ -2,6 +2,7 @@
 import React from 'react';
 import { Verb } from '@/types';
 import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
+import ProgressModal from '@/components/ProgressModal';
 
 
 interface StartScreenProps {
@@ -11,6 +12,9 @@ interface StartScreenProps {
     onRefresh: () => void;
     onIncreaseAttempts: () => void;
     onDecreaseAttempts: () => void;
+    onShowProgress: () => void;
+    aiSummary?: string;
+    aiError?: string | null;
 }
 
 const SESSION_MIN = 2;
@@ -30,6 +34,9 @@ const StartScreen: React.FC<StartScreenProps> = ({
     onRefresh,
     onIncreaseAttempts,
     onDecreaseAttempts,
+    onShowProgress,
+    aiSummary,
+    aiError,
 }) => {
     const { getVerbProgress } = useSpacedRepetition();
     const totalQuestions = dailyVerbs.length * attemptsPerVerb;
@@ -179,6 +186,16 @@ const StartScreen: React.FC<StartScreenProps> = ({
                 >
                     Comenzar Sesión · {totalQuestions} preguntas
                 </button>
+
+                {/* Solo el botón — el modal se maneja en page.tsx */}
+                <button
+                    onClick={onShowProgress}
+                    className="w-full bg-slate-100 text-slate-600 font-semibold py-2.5 px-4 rounded-xl hover:bg-slate-200 text-sm transition-colors flex items-center justify-center gap-2"
+                >
+                    📊 Ver mi progreso
+                </button>
+                {/* ← ELIMINAR el <div className="relative"> y el {showProgress && <ProgressModal.../>} */}
+
                 <button
                     onClick={onRefresh}
                     className="w-full bg-slate-100 text-slate-600 font-semibold py-2.5 px-4 rounded-xl hover:bg-slate-200 text-sm transition-colors flex items-center justify-center gap-2"
@@ -191,6 +208,22 @@ const StartScreen: React.FC<StartScreenProps> = ({
                     Refrescar verbos
                 </button>
             </div>
+
+            {/* Mensaje IA */}
+            {aiSummary && !aiError && (
+                <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-3 mt-4 flex items-start gap-2">
+                    <span className="text-lg flex-shrink-0">🤖</span>
+                    <p className="text-xs text-indigo-700">{aiSummary}</p>
+                </div>
+            )}
+            {aiError && (
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 mt-4 flex items-start gap-2">
+                    <span className="text-lg flex-shrink-0">⚠️</span>
+                    <p className="text-xs text-amber-700">{aiError}</p>
+                </div>
+            )}
+
+            
         </div>
     );
 };
