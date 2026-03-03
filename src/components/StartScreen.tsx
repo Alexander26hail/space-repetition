@@ -2,7 +2,7 @@
 import React from 'react';
 import { Verb } from '@/types';
 import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
-import ProgressModal from '@/components/ProgressModal';
+
 
 
 interface StartScreenProps {
