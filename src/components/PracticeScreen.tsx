@@ -131,16 +131,17 @@ const PracticeScreen: React.FC<PracticeScreenProps> = ({
         }
     };
 
-    const handleCorrectionWriteForms = () => {
-        const ok =
-            infinitive.trim().toLowerCase() === verb.infinitive.toLowerCase() &&
-            pastSimple.trim().toLowerCase() === verb.pastSimple.toLowerCase() &&
-            pastParticiple.trim().toLowerCase() === verb.pastParticiple.toLowerCase();
-        if (ok) {
-            setCorrectionMode(false);
-            setIsCorrect(true);
-        }
-    };
+   const handleCorrectionWriteForms = () => {
+    const ok =
+        isEnglishFormCorrect(infinitive, verb.infinitive) &&
+        isEnglishFormCorrect(pastSimple, verb.pastSimple) &&
+        isEnglishFormCorrect(pastParticiple, verb.pastParticiple);
+
+    if (ok) {
+        setCorrectionMode(false);
+        setIsCorrect(true);
+    }
+};
 
     // Enter en inputs de write_forms: avanza al siguiente campo o revisa/confirma
     const handleWriteFormsKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, fieldIndex: number) => {
