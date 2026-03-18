@@ -26,7 +26,7 @@ export class SRService implements ISRService {
     }
 
     getDueVerbs(allInfinitives: string[], count: number): string[] {
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date().toISOString();
         const all = this.repo.getAll();
 
         const due: VerbProgress[] = [];
@@ -35,7 +35,7 @@ export class SRService implements ISRService {
         allInfinitives.forEach((inf) => {
             const p = all[inf];
             if (!p)                    newVerbs.push(inf);
-            else if (p.nextReview <= today) due.push(p);
+            else if (p.nextReview <= now) due.push(p);
         });
 
         const sortedDue = due
@@ -47,11 +47,11 @@ export class SRService implements ISRService {
 
     getGlobalStats(): SRGlobalStats {
         const all = Object.values(this.repo.getAll());
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date().toISOString();
 
         return {
             totalStudied: all.length,
-            dueToday:     all.filter((p) => p.nextReview <= today).length,
+            dueToday:     all.filter((p) => p.nextReview <= now).length,
             mastered:     all.filter((p) => p.interval >= 21).length,
             learning:     all.filter((p) => p.interval < 21 && p.repetitions > 0).length,
             newVerbs:     all.filter((p) => p.repetitions === 0).length,

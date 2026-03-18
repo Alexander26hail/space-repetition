@@ -76,6 +76,20 @@ const StartScreen: React.FC<StartScreenProps> = ({
             </div>
 
             {/* Lista de verbos — tarjetas */}
+            {dailyVerbs.length === 0 ? (
+                <div className="text-center py-10 mb-6">
+                    <p className="text-5xl mb-3">🎉</p>
+                    <p className="font-bold text-slate-700 text-lg">¡Todo al día!</p>
+                    <p className="text-slate-500 text-sm mt-1">No hay verbos pendientes ahora mismo.</p>
+                    <p className="text-slate-400 text-xs mt-2">Vuelve más tarde cuando haya verbos para revisar.</p>
+                    <button
+                        onClick={onRefresh}
+                        className="mt-4 text-indigo-600 text-sm font-semibold underline underline-offset-2"
+                    >
+                        Verificar de nuevo
+                    </button>
+                </div>
+            ) : (
             <ul className="space-y-2 mb-6">
 
                 {dailyVerbs.map((verb, index) => {
@@ -116,6 +130,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
                 
             </ul>
+            )}
 
             {/* Control de intentos */}
             <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 mb-4">
@@ -182,7 +197,8 @@ const StartScreen: React.FC<StartScreenProps> = ({
             <div className="flex flex-col gap-3">
                 <button
                     onClick={onStart}
-                    className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 text-base transition-colors"
+                    disabled={dailyVerbs.length === 0}
+                    className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-indigo-700 text-base transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                     Comenzar Sesión · {totalQuestions} preguntas
                 </button>

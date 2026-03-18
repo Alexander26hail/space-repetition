@@ -1,8 +1,7 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { SessionStats } from '@/types';
 import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
-import { AIRecommendation } from '@/lib/sr/types';
 
 interface SummaryScreenProps {
     stats: SessionStats;
@@ -10,34 +9,17 @@ interface SummaryScreenProps {
     onReinforce: () => void;
 }
 
-function formatMinutes(minutes: number): string {
+function formatRelativeTime(isoString: string): string {
+    const diff = new Date(isoString).getTime() - Date.now();
+    const minutes = Math.round(diff / 60000);
+    if (minutes < 1)    return 'ahora';
     if (minutes < 60)   return `${minutes} min`;
-    if (minutes < 1440) return `${Math.round(minutes / 60)} horas`;
+    if (minutes < 1440) return `${Math.round(minutes / 60)} h`;
     return `${Math.round(minutes / 1440)} días`;
 }
 
 const SummaryScreen: React.FC<SummaryScreenProps> = ({ stats, onGoToStart, onReinforce }) => {
-    const { getVerbProgress, globalStats, getAIRecommendation } = useSpacedRepetition();
-    const [aiRecs, setAiRecs] = useState<Record<string, AIRecommendation>>({});
-    const [loadingAI, setLoadingAI] = useState(true);
-
-    useEffect(() => {
-        const fetchAll = async () => {
-            setLoadingAI(true);
-            const errorInfinitives = stats.verbsWithErrors.map((v) => v.infinitive);
-            const results: Record<string, AIRecommendation> = {};
-
-            for (const verb of stats.verbsWithErrors) {
-                results[verb.infinitive] = await getAIRecommendation(verb.infinitive, errorInfinitives);
-            }
-
-            setAiRecs(results);
-            setLoadingAI(false);
-        };
-
-        if (stats.verbsWithErrors.length > 0) fetchAll();
-        else setLoadingAI(false);
-    }, []);
+    const { getVerbProgress, globalStats } = useSpacedRepetition();
 
     return (
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
@@ -75,54 +57,51 @@ const SummaryScreen: React.FC<SummaryScreenProps> = ({ stats, onGoToStart, onRei
                 </div>
             </div>
 
-            {/* Recomendaciones IA */}
-            {stats.verbsWithErrors.length > 0 && (
+            {/* Verbos estudiados con próxima revisión */}
+            {stats.verbsStudied.length > 0 && (
                 <div className="mb-6 text-left">
-                    <p className="text-sm font-bold text-slate-600 mb-2">🤖 Recomendaciones IA</p>
+                    <p className="text-sm font-bold text-slate-600 mb-2">📚 Verbos de esta sesión</p>
+                    <ul className="space-y-2">
+                        {stats.verbsStudied.map((verb) => {
+                            const wasWrong = stats.verbsWithErrors.some((v) => v.infinitive === verb.infinitive);
+                            const progress = getVerbProgress(verb.infinitive);
+                            const nextTime  = formatRelativeTime(progress.nextReview);
 
-                    {loadingAI ? (
-                        <div className="flex items-center gap-2 text-slate-400 text-sm p-3 bg-slate-50 rounded-lg">
-                            <span className="animate-spin inline-block">⏳</span>
-                            Analizando tu progreso...
-                        </div>
-                    ) : (
-                        <ul className="space-y-2">
-                            {stats.verbsWithErrors.map((verb) => {
-                                const progress = getVerbProgress(verb.infinitive);
-                                const rec      = aiRecs[verb.infinitive];
-                                const color    = rec?.difficulty === 'hard'   ? 'bg-red-50 border-red-100'
-                                               : rec?.difficulty === 'medium' ? 'bg-amber-50 border-amber-100'
-                                               :                                 'bg-green-50 border-green-100';
-                                return (
-                                    <li key={verb.infinitive} className={`rounded-xl px-4 py-3 border ${color}`}>
-                                        <div className="flex justify-between items-center">
-                                            <span className="font-bold text-slate-700">{verb.infinitive}</span>
-                                            {rec && (
-                                                <span className="text-xs font-bold text-indigo-600 bg-white px-2 py-1 rounded-full border border-indigo-100">
-                                                    ⏱ en {formatMinutes(rec.nextReviewMinutes)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {rec?.reason && (
-                                            <p className="text-xs text-slate-500 mt-1 italic">🤖 {rec.reason}</p>
-                                        )}
-                                        <p className="text-xs text-slate-400 mt-0.5">
-                                            SM-2: {progress.interval <= 1 ? 'mañana' : `en ${progress.interval} días`}
-                                        </p>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                    )}
+                            return (
+                                <li
+                                    key={verb.infinitive}
+                                    className={`rounded-xl px-4 py-3 border flex items-center justify-between ${
+                                        wasWrong
+                                            ? 'bg-red-50 border-red-100'
+                                            : 'bg-green-50 border-green-100'
+                                    }`}
+                                >
+                                    <div>
+                                        <span className="font-bold text-slate-700 text-sm">{verb.infinitive}</span>
+                                        <span className="text-slate-400 text-xs ml-2">· {verb.spanish}</span>
+                                    </div>
+                                    <span
+                                        className={`text-xs font-bold px-2 py-1 rounded-full border whitespace-nowrap ${
+                                            wasWrong
+                                                ? 'bg-white text-red-500 border-red-200'
+                                                : 'bg-white text-green-600 border-green-200'
+                                        }`}
+                                    >
+                                        {wasWrong ? '✗' : '✓'} en {nextTime}
+                                    </span>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
             )}
 
             {/* Próximas revisiones */}
             <div className="mb-6 text-left">
-                <p className="text-sm font-bold text-slate-600 mb-1">✅ Próximas revisiones:</p>
+                <p className="text-sm font-bold text-slate-600 mb-1">⏰ Próximas revisiones:</p>
                 <p className="text-xs text-slate-400">
-                    Mañana tendrás{' '}
-                    <span className="font-bold text-indigo-600">{globalStats.dueToday}</span> verbos para revisar
+                    Hay{' '}
+                    <span className="font-bold text-indigo-600">{globalStats.dueToday}</span> verbos pendientes ahora mismo
                 </p>
             </div>
 
@@ -130,15 +109,13 @@ const SummaryScreen: React.FC<SummaryScreenProps> = ({ stats, onGoToStart, onRei
             <div className="space-y-3">
                 {stats.verbsWithErrors.length > 0 && (
                     <button onClick={onReinforce} className="w-full bg-amber-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-amber-600 transition-colors">
-                        Reforzar Verbos con Errores
+                        Reforzar verbos con errores
                     </button>
                 )}
                 <button onClick={onGoToStart} className="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-indigo-700 transition-colors">
-                    Volver al Inicio
+                    Guardar y volver al inicio
                 </button>
             </div>
-
-            <p className="mt-4 text-slate-500 text-sm">¡Sigue así! Vuelve mañana para una nueva sesión.</p>
         </div>
     );
 };

@@ -24,6 +24,7 @@ export interface SessionStats {
     correct: number;
     incorrect: number;
     verbsWithErrors: Verb[];
+    verbsStudied: Verb[];
 }
 
 export interface MatchingPair {
