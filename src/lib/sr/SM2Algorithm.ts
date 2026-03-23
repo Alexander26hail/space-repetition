@@ -10,7 +10,7 @@ export class SM2Algorithm implements ISRAlgorithm {
     calculate(prev: VerbProgress, isCorrect: boolean): Partial<VerbProgress> {
         const quality = isCorrect ? 4 : 1;
         let { easeFactor, interval, repetitions } = prev;
-
+        const MAX_INTERVAL = 35;
         const now = new Date();
         let nextReviewDate: Date;
 
@@ -33,8 +33,7 @@ export class SM2Algorithm implements ISRAlgorithm {
                 nextReviewDate = new Date(now);
                 nextReviewDate.setDate(nextReviewDate.getDate() + 6);
             } else {
-                interval = Math.round(interval * easeFactor);
-                nextReviewDate = new Date(now);
+                interval = Math.min(Math.round(interval * easeFactor), MAX_INTERVAL);                nextReviewDate = new Date(now);
                 nextReviewDate.setDate(nextReviewDate.getDate() + interval);
             }
             repetitions += 1;

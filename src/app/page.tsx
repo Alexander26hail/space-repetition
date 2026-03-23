@@ -10,6 +10,33 @@ import { createMixedQuestionDeck, createMixedReinforcementDeck, isSpanishTransla
 import { SESSION_CONFIG } from '@/lib/constants';
 import { useSpacedRepetition } from '@/lib/hooks/useSpacedRepetition';
 
+const TODAY_PLAN_KEY = 'sr_daily_plan';
+
+function getTodayKey(): string {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Santiago' }).format(new Date());
+}
+
+function getCachedDailyPlan(allVerbs: Verb[]): Verb[] | null {
+    if (typeof window === 'undefined') return null;
+    try {
+        const cached = JSON.parse(localStorage.getItem(TODAY_PLAN_KEY) ?? 'null');
+        if (!cached || cached.date !== getTodayKey()) return null;
+        return (cached.infinitives as string[])
+            .map((inf) => allVerbs.find((v) => v.infinitive === inf))
+            .filter(Boolean) as Verb[];
+    } catch {
+        return null;
+    }
+}
+
+function saveDailyPlanCache(verbs: Verb[]): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(TODAY_PLAN_KEY, JSON.stringify({
+        date: getTodayKey(),
+        infinitives: verbs.map((v) => v.infinitive),
+    }));
+}
+
 export default function HomePage() {
     const [screen, setScreen] = useState<Screen>('start');
     const [allVerbs, setAllVerbs] = useState<Verb[]>([]);
@@ -34,7 +61,14 @@ export default function HomePage() {
             .then((res) => res.json())
             .then((data: Verb[]) => {
                 setAllVerbs(data);
-                setDailyVerbs(getDailyVerbsSR(data));
+                const cached = getCachedDailyPlan(data);
+                if (cached && cached.length > 0) {
+                    setDailyVerbs(cached);
+                } else {
+                    const selected = getDailyVerbsSR(data);
+                    saveDailyPlanCache(selected);
+                    setDailyVerbs(selected);
+                }
                 setLoading(false);
             })
             .catch((err) => {
@@ -103,11 +137,14 @@ export default function HomePage() {
     };
 
     const handleRefresh = () => {
-        setDailyVerbs(getDailyVerbsSR(allVerbs));
+        const selected = getDailyVerbsSR(allVerbs);
+        saveDailyPlanCache(selected);
+        setDailyVerbs(selected);
     };
 
     const handleGoToStart = () => {
-        setDailyVerbs(getDailyVerbsSR(allVerbs));
+        const cached = getCachedDailyPlan(allVerbs);
+        setDailyVerbs(cached && cached.length > 0 ? cached : dailyVerbs);
         setStats({ correct: 0, incorrect: 0, verbsStudied: [], verbsWithErrors: [] });
         setScreen('start');
     };
